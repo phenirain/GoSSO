@@ -1,0 +1,6 @@
+env: "local" # dev, prod
+connection_string: "postgres://"
+secret: "pineapples"
+grpc:
+  port: 8008
+  timeout: 1h
