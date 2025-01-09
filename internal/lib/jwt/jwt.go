@@ -1,10 +1,15 @@
 package jwt
 
 import (
+	"errors"
 	"fmt"
 	"github.com/EtoNeAnanasbI95/auth-grpc-demo/internal/domain/models"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
+)
+
+var (
+	ErrInvalidToken = errors.New("invalid token")
 )
 
 func NewToken(user *models.User, duration time.Duration, secret []byte) (string, error) {
@@ -23,7 +28,7 @@ func NewToken(user *models.User, duration time.Duration, secret []byte) (string,
 	return tokenString, nil
 }
 
-func ParseToken(tokenString string, secret []byte) error {
+func ParseToken(tokenString string, secret []byte) (int, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -31,11 +36,14 @@ func ParseToken(tokenString string, secret []byte) error {
 		return secret, nil
 	})
 	if err != nil {
-		return fmt.Errorf("token parse error: %s", err.Error())
+		return -1, fmt.Errorf("token parse error: %s", err.Error())
 	}
-
 	if !token.Valid {
-		return fmt.Errorf("token is invalid")
+		return -1, ErrInvalidToken
 	}
-	return nil
+	uid, ok := token.Claims.(jwt.MapClaims)["sub"].(int)
+	if !ok {
+		return -1, errors.New("can't convert claims sub to uid")
+	}
+	return uid, nil
 }
