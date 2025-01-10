@@ -1,6 +1,9 @@
 package storage
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+)
 
 func MustInitDb(cs string) *sqlx.DB {
 	db, err := sqlx.Connect("postgres", cs)
