@@ -16,7 +16,6 @@ const (
 )
 
 func main() {
-	//os.Setenv("GRPC_AUTH_CONFIG_PATH", "./config/local.yaml")
 	cfg := config.MustLoadConfig()
 
 	log := setupLogger(cfg.Env)
