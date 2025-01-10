@@ -31,8 +31,10 @@ func New(tokenTTL time.Duration, log *slog.Logger, repo UsrRepo, secret []byte) 
 
 var (
 	ErrInvalidUserCredentials = errors.New("invalid user credentials")
+	ErrUserAlreadyExists      = errors.New("user already exists")
 )
 
+//go:generate mockery --name=UsrRepo
 type UsrRepo interface {
 	GetUser(ctx context.Context, email string) (*models.User, error)
 	GetUserWithId(ctx context.Context, uid int) (*models.User, error)
@@ -83,17 +85,18 @@ func (a *Auth) Register(ctx context.Context, email string, password string) (int
 
 	log := a.log.With(
 		slog.String("op", op),
-		slog.String("username", email),
+		slog.String("email", email),
+		slog.String("password", password),
 	)
 
 	log.Info("attempting to register user")
 
 	user, err := a.usrRepo.GetUser(ctx, email)
 	if user != nil {
-		log.Error("found user", sl.Err(err))
-		return -1, fmt.Errorf("%s: user with this email alredy exists, %w", op, err)
+		log.Info("found user")
+		return -1, fmt.Errorf("%s: user with this email alredy exists, %w", op, ErrUserAlreadyExists)
 	}
-	if err != nil {
+	if err != nil && !errors.Is(err, userRepo.ErrUserNotFound) {
 		log.Error("failed to get user", sl.Err(err))
 		return -1, fmt.Errorf("%s: %w", op, err)
 	}
