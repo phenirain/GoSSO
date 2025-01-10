@@ -14,7 +14,7 @@ type AuthService interface {
 	Login(ctx context.Context, email string, password string) (string, string, error)
 	Register(ctx context.Context, email string, password string) (int64, error)
 	Refresh(ctx context.Context, refreshToken string) (string, string, error)
-	Validate(ctx context.Context, token string) (int, error)
+	Validate(ctx context.Context, token string) (int64, error)
 }
 
 type serverAPI struct {
@@ -82,7 +82,7 @@ func (s *serverAPI) Validate(ctx context.Context, token *authv1.TokenRequest) (*
 		return nil, status.Error(codes.InvalidArgument, "token required")
 	}
 
-	err := s.auth.Validate(ctx, token.GetToken())
+	_, err := s.auth.Validate(ctx, token.GetToken())
 	if err != nil {
 		// TODO: ...
 		return nil, status.Error(codes.Internal, err.Error())
