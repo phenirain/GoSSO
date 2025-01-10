@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"github.com/EtoNeAnanasbI95/auth-grpc-demo/internal/domain/models"
+	"github.com/EtoNeAnanasbI95/auth-grpc-demo/internal/lib/jwt"
 	userRepo "github.com/EtoNeAnanasbI95/auth-grpc-demo/internal/repository/user"
 	"github.com/EtoNeAnanasbI95/auth-grpc-demo/internal/services/auth/mocks"
 	"github.com/stretchr/testify/assert"
@@ -137,7 +138,57 @@ func TestAuth_Register(t *testing.T) {
 
 			if test.expectError {
 				assert.Error(t, err, "Expected error but got none")
-				assert.Equal(t, int64(-1), uid, "Expected access token but got none")
+				assert.Equal(t, int64(-1), uid, "Expected -1 uid but got none")
+			} else {
+				assert.NoError(t, err, "Expected no error but got one")
+				assert.NotEqual(t, uid, -1, "Expected uid but got none")
+				log.Info("user", "uid", uid)
+			}
+
+			mockRepo.AssertExpectations(t)
+		})
+	}
+}
+
+func TestAuth_Validate(t *testing.T) {
+	mockRepo := new(mocks.UsrRepo)
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	ttl := time.Minute * 15
+	secret := []byte("secret")
+	authService := New(ttl, log, mockRepo, secret)
+	user := &models.User{
+		Id:           1,
+		Name:         "...",
+		Email:        "...",
+		PasswordHash: nil,
+	}
+	validToken, err := jwt.NewToken(user, ttl, secret)
+	assert.NoError(t, err)
+	tests := []struct {
+		name        string
+		token       string
+		expectError bool
+	}{
+		{
+			name:        "invalid token",
+			token:       "...",
+			expectError: true,
+		},
+		{
+			name:        "valid token",
+			token:       validToken,
+			expectError: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			mockRepo.ExpectedCalls = nil
+			uid, err := authService.Validate(context.Background(), test.token)
+
+			if test.expectError {
+				assert.Error(t, err, "Expected error but got none")
+				assert.Equal(t, int64(-1), uid, "Expected -1 uid but got none")
 			} else {
 				assert.NoError(t, err, "Expected no error but got one")
 				assert.NotEqual(t, uid, -1, "Expected access token but got none")
@@ -150,5 +201,3 @@ func TestAuth_Register(t *testing.T) {
 }
 
 // TODO: test for refresh
-
-// TODO: test for validate
