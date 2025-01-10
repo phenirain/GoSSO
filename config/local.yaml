@@ -1,5 +1,5 @@
 env: "local" # dev, prod
-connection_string: "postgres://"
+connection_string: "postgres://postgres:6699@localhost:5432/UsersSSOdb?sslmode=disable"
 secret: "pineapples"
 grpc:
   port: 8008
