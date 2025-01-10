@@ -20,7 +20,7 @@ func New(log *slog.Logger, config *config.Config) *App {
 	log.Info(op, "msg", "initializing db connection")
 	db := storage.MustInitDb(config.ConnectionString)
 	log.Info(op, "msg", "initializing app")
-	usersRepository := user.New(db)
+	usersRepository := user.New(db, log)
 	log.Info(op, "msg", "initializing auth service")
 	authService := auth.New(time.Second*60, log, usersRepository, []byte(config.Secret))
 

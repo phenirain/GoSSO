@@ -11,8 +11,8 @@ import (
 )
 
 type AuthService interface {
-	Login(ctx context.Context, email string, password string) (string, string, error)
-	Register(ctx context.Context, email string, password string) (int64, error)
+	Login(ctx context.Context, login string, password string) (string, string, error)
+	Register(ctx context.Context, login string, password string) (int64, error)
 	Refresh(ctx context.Context, refreshToken string) (string, string, error)
 	Validate(ctx context.Context, token string) (int64, error)
 }

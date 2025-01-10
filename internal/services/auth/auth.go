@@ -36,22 +36,22 @@ var (
 
 //go:generate mockery --name=UsrRepo
 type UsrRepo interface {
-	GetUser(ctx context.Context, email string) (*models.User, error)
+	GetUser(ctx context.Context, login string) (*models.User, error)
 	GetUserWithId(ctx context.Context, uid int64) (*models.User, error)
-	AddUser(ctx context.Context, email string, passwordHash []byte) (int64, error)
+	AddUser(ctx context.Context, login string, passwordHash []byte) (int64, error)
 }
 
-func (a *Auth) Login(ctx context.Context, email string, passwordHash string) (string, string, error) {
+func (a *Auth) Login(ctx context.Context, login string, passwordHash string) (string, string, error) {
 	const op = "Auth.Login"
 
 	log := a.log.With(
 		slog.String("op", op),
-		slog.String("username", email),
+		slog.String("login", login),
 	)
 
 	log.Info("attempting to login user")
 
-	user, err := a.usrRepo.GetUser(ctx, email)
+	user, err := a.usrRepo.GetUser(ctx, login)
 	if err != nil {
 		if errors.Is(err, userRepo.ErrUserNotFound) {
 			log.Info("user not found")
@@ -71,7 +71,7 @@ func (a *Auth) Login(ctx context.Context, email string, passwordHash string) (st
 		log.Error("failed to generate access token", sl.Err(err))
 		return "", "", fmt.Errorf("%s: %w", op, err)
 	}
-	refreshToken, err := jwt.NewToken(user, time.Minute*15, a.secret)
+	refreshToken, err := jwt.NewToken(user, time.Hour*24*30, a.secret)
 	if err != nil {
 		log.Error("failed to generate refresh token", sl.Err(err))
 		return "", "", fmt.Errorf("%s: %w", op, err)
@@ -80,21 +80,21 @@ func (a *Auth) Login(ctx context.Context, email string, passwordHash string) (st
 	return accessToken, refreshToken, nil
 }
 
-func (a *Auth) Register(ctx context.Context, email string, password string) (int64, error) {
+func (a *Auth) Register(ctx context.Context, login string, password string) (int64, error) {
 	const op = "Auth.Register"
 
 	log := a.log.With(
 		slog.String("op", op),
-		slog.String("email", email),
+		slog.String("login", login),
 		slog.String("password", password),
 	)
 
 	log.Info("attempting to register user")
 
-	user, err := a.usrRepo.GetUser(ctx, email)
+	user, err := a.usrRepo.GetUser(ctx, login)
 	if user != nil {
 		log.Info("found user")
-		return -1, fmt.Errorf("%s: user with this email alredy exists, %w", op, ErrUserAlreadyExists)
+		return -1, fmt.Errorf("%s: user with this login alredy exists, %w", op, ErrUserAlreadyExists)
 	}
 	if err != nil && !errors.Is(err, userRepo.ErrUserNotFound) {
 		log.Error("failed to get user", sl.Err(err))
@@ -107,7 +107,7 @@ func (a *Auth) Register(ctx context.Context, email string, password string) (int
 		return -1, fmt.Errorf("%s: %w", op, err)
 	}
 
-	newUid, err := a.usrRepo.AddUser(ctx, email, passHash)
+	newUid, err := a.usrRepo.AddUser(ctx, login, passHash)
 	if err != nil {
 		log.Error("failed to add user", sl.Err(err))
 		return -1, fmt.Errorf("%s: %w", op, err)
@@ -149,7 +149,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (string, string
 		log.Error("failed to generate token", sl.Err(err))
 		return "", "", fmt.Errorf("%s: %w", op, err)
 	}
-	refreshToken, err = jwt.NewToken(user, (time.Hour*24)*40, a.secret)
+	refreshToken, err = jwt.NewToken(user, time.Hour*24*30, a.secret)
 	if err != nil {
 		log.Error("failed to generate token", sl.Err(err))
 		return "", "", fmt.Errorf("%s: %w", op, err)
