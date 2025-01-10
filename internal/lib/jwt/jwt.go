@@ -28,7 +28,7 @@ func NewToken(user *models.User, duration time.Duration, secret []byte) (string,
 	return tokenString, nil
 }
 
-func ParseToken(tokenString string, secret []byte) (int, error) {
+func ParseToken(tokenString string, secret []byte) (int64, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -41,9 +41,9 @@ func ParseToken(tokenString string, secret []byte) (int, error) {
 	if !token.Valid {
 		return -1, ErrInvalidToken
 	}
-	uid, ok := token.Claims.(jwt.MapClaims)["sub"].(int)
+	uid, ok := token.Claims.(jwt.MapClaims)["sub"]
 	if !ok {
-		return -1, errors.New("can't convert claims sub to uid")
+		return -1, errors.New("can't get sub from claims")
 	}
-	return uid, nil
+	return int64(uid.(float64)), nil
 }

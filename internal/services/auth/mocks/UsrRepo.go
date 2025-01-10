@@ -73,7 +73,7 @@ func (_m *UsrRepo) GetUser(ctx context.Context, email string) (*models.User, err
 }
 
 // GetUserWithId provides a mock function with given fields: ctx, uid
-func (_m *UsrRepo) GetUserWithId(ctx context.Context, uid int) (*models.User, error) {
+func (_m *UsrRepo) GetUserWithId(ctx context.Context, uid int64) (*models.User, error) {
 	ret := _m.Called(ctx, uid)
 
 	if len(ret) == 0 {
@@ -82,10 +82,10 @@ func (_m *UsrRepo) GetUserWithId(ctx context.Context, uid int) (*models.User, er
 
 	var r0 *models.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int) (*models.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int64) (*models.User, error)); ok {
 		return rf(ctx, uid)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int) *models.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, int64) *models.User); ok {
 		r0 = rf(ctx, uid)
 	} else {
 		if ret.Get(0) != nil {
@@ -93,7 +93,7 @@ func (_m *UsrRepo) GetUserWithId(ctx context.Context, uid int) (*models.User, er
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
 		r1 = rf(ctx, uid)
 	} else {
 		r1 = ret.Error(1)

@@ -37,7 +37,7 @@ var (
 //go:generate mockery --name=UsrRepo
 type UsrRepo interface {
 	GetUser(ctx context.Context, email string) (*models.User, error)
-	GetUserWithId(ctx context.Context, uid int) (*models.User, error)
+	GetUserWithId(ctx context.Context, uid int64) (*models.User, error)
 	AddUser(ctx context.Context, email string, passwordHash []byte) (int64, error)
 }
 
@@ -158,7 +158,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (string, string
 	return accessToken, refreshToken, nil
 }
 
-func (a *Auth) Validate(ctx context.Context, token string) (int, error) {
+func (a *Auth) Validate(ctx context.Context, token string) (int64, error) {
 	const op = "Auth.Validate"
 
 	log := a.log.With(
