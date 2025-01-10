@@ -200,4 +200,67 @@ func TestAuth_Validate(t *testing.T) {
 	}
 }
 
-// TODO: test for refresh
+func TestAuth_Refresh(t *testing.T) {
+	mockRepo := new(mocks.UsrRepo)
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	ttl := time.Minute * 15
+	secret := []byte("secret")
+	authService := New(ttl, log, mockRepo, secret)
+	user := &models.User{
+		Id:           1,
+		Name:         "...",
+		Email:        "...",
+		PasswordHash: nil,
+	}
+	validToken, err := jwt.NewToken(user, ttl, secret)
+	assert.NoError(t, err)
+	tests := []struct {
+		name        string
+		token       string
+		mockSetup   func()
+		expectError bool
+	}{
+		{
+			name:        "invalid token",
+			token:       "...",
+			mockSetup:   func() {},
+			expectError: true,
+		},
+		{
+			name:  "valid token",
+			token: validToken,
+			mockSetup: func() {
+				mockRepo.On("GetUserWithId", mock.Anything, int64(1)).Return(&models.User{
+					Id:           1,
+					Name:         "...",
+					Email:        "...",
+					PasswordHash: nil,
+				}, nil)
+			},
+			expectError: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			mockRepo.ExpectedCalls = nil
+			test.mockSetup()
+			accessToken, refreshToken, err := authService.Refresh(context.Background(), test.token)
+
+			if test.expectError {
+				assert.Error(t, err, "Expected error but got none")
+				assert.Empty(t, accessToken, "Expected no access token")
+				assert.Empty(t, refreshToken, "Expected no refresh token")
+			} else {
+				assert.NoError(t, err, "Expected no error but got one")
+				assert.NotEmpty(t, accessToken, "Expected no access token")
+				log.Info("token", "access token", accessToken)
+				assert.NotEmpty(t, refreshToken, "Expected no refresh token")
+				log.Info("token", "refresh token", refreshToken)
+			}
+
+			mockRepo.AssertExpectations(t)
+		})
+	}
+
+}
