@@ -3,4 +3,4 @@ connection_string: "postgres://postgres:6699@localhost:5432/UsersSSOdb?sslmode=d
 secret: "pineapples"
 grpc:
   port: 8008
-  timeout: 1h
+  timeout: 15m
