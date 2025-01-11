@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  grpc-sso:
+    build: .
+    image: grpc-sso
+    depends_on:
+      - database
+    ports:
+      - "8008:8080"
+    volumes:
+      - ./config:/auth-sso/config
+      - ./migrations:/auth-sso/migrations
+    command: ["/bin/sh", "-c", "./auth-sso-migrator --config=./config/local.yaml --migrations=./migrations && ./auth-sso --config=./config/local.yaml"]
+    networks:
+      - app_network
+
+  database:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 6699
+      POSTGRES_DB: UsersSSOdb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+volumes:
+  db_data:
+
+networks:
+  app_network:
+    driver: bridge
