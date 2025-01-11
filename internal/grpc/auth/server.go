@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type AuthService interface {
@@ -85,17 +84,17 @@ func (s *serverAPI) Refresh(ctx context.Context, token *authv1.TokenRequest) (*a
 	}, nil
 }
 
-func (s *serverAPI) Validate(ctx context.Context, token *authv1.TokenRequest) (*emptypb.Empty, error) {
+func (s *serverAPI) Validate(ctx context.Context, token *authv1.TokenRequest) (*authv1.ValidateRequest, error) {
 	if token.GetToken() == "" {
 		return nil, status.Error(codes.InvalidArgument, "token required")
 	}
 
-	_, err := s.auth.Validate(ctx, token.GetToken())
+	uid, err := s.auth.Validate(ctx, token.GetToken())
 	if err != nil {
 		if errors.Is(err, auth.ErrInvalidUserCredentials) {
 			return nil, status.Error(codes.Unauthenticated, auth.ErrInvalidUserCredentials.Error())
 		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &emptypb.Empty{}, nil
+	return &authv1.ValidateRequest{Uid: uid}, nil
 }
