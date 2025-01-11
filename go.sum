@@ -3,6 +3,8 @@ github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/EtoNeAnanasbI95/protos_auth v1.0.1 h1:9oCXsX975NJNw/U3MI2rMA4r/JVZxlruY4tDtxEHxIQ=
 github.com/EtoNeAnanasbI95/protos_auth v1.0.1/go.mod h1:ULE9yBI1MZG6gv/n+Yq6eG1AIv9cxBigRjHWnPvCDN0=
+github.com/EtoNeAnanasbI95/protos_auth v1.0.2 h1:sNmonzpL0ZZIRC+EV106N4x3oDsEtIt51VouSkjX+nM=
+github.com/EtoNeAnanasbI95/protos_auth v1.0.2/go.mod h1:ULE9yBI1MZG6gv/n+Yq6eG1AIv9cxBigRjHWnPvCDN0=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-sql-driver/mysql v1.8.1/go.mod h1:wEBSXgmK//2ZFJyE+qWnIsVGmvmEKlqwuVSjsCm7DZg=

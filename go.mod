@@ -3,7 +3,7 @@ module github.com/EtoNeAnanasbI95/auth-grpc-demo
 go 1.23.3
 
 require (
-	github.com/EtoNeAnanasbI95/protos_auth v1.0.1
+	github.com/EtoNeAnanasbI95/protos_auth v1.0.2
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/stretchr/testify v1.10.0
