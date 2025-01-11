@@ -32,6 +32,7 @@ func New(tokenTTL time.Duration, log *slog.Logger, repo UsrRepo, secret []byte) 
 var (
 	ErrInvalidUserCredentials = errors.New("invalid user credentials")
 	ErrUserAlreadyExists      = errors.New("user already exists")
+	// TODO: дописать ErrUserNotFound
 )
 
 //go:generate mockery --name=UsrRepo
@@ -66,7 +67,7 @@ func (a *Auth) Login(ctx context.Context, login string, passwordHash string) (st
 	}
 
 	log.Info("user logged in successfully")
-	accessToken, err := jwt.NewToken(user, time.Minute*15, a.secret)
+	accessToken, err := jwt.NewToken(user, a.tokenTTL, a.secret)
 	if err != nil {
 		log.Error("failed to generate access token", sl.Err(err))
 		return "", "", fmt.Errorf("%s: %w", op, err)
@@ -128,7 +129,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (string, string
 	if err != nil {
 		if errors.Is(err, jwt.ErrInvalidToken) {
 			log.Info("incorrect token", sl.Err(err))
-			return "", "", fmt.Errorf("%s: %w", op, err)
+			return "", "", fmt.Errorf("%s: %w", op, ErrInvalidUserCredentials)
 		}
 		log.Error("failed to refresh token", sl.Err(err))
 		return "", "", err
@@ -144,7 +145,7 @@ func (a *Auth) Refresh(ctx context.Context, refreshToken string) (string, string
 		return "", "", fmt.Errorf("%s: %w", op, err)
 	}
 
-	accessToken, err := jwt.NewToken(user, time.Minute*15, a.secret)
+	accessToken, err := jwt.NewToken(user, a.tokenTTL, a.secret)
 	if err != nil {
 		log.Error("failed to generate token", sl.Err(err))
 		return "", "", fmt.Errorf("%s: %w", op, err)
@@ -171,7 +172,7 @@ func (a *Auth) Validate(ctx context.Context, token string) (int64, error) {
 	if err != nil {
 		if errors.Is(err, jwt.ErrInvalidToken) {
 			log.Info("invalid jwt token", sl.Err(err))
-			return -1, fmt.Errorf("%s: %w", op, err)
+			return -1, fmt.Errorf("%s: %w", op, ErrInvalidUserCredentials)
 		}
 		log.Error("failed to validate jwt", sl.Err(err))
 		return -1, fmt.Errorf("%s: %w", op, err)
