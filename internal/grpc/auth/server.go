@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"errors"
+	"github.com/EtoNeAnanasbI95/auth-grpc-demo/internal/services/auth"
 	authv1 "github.com/EtoNeAnanasbI95/protos_auth/gen/go"
 
 	"google.golang.org/grpc"
@@ -36,7 +38,9 @@ func (s *serverAPI) Login(ctx context.Context, login *authv1.LoginRequest) (*aut
 
 	refreshToken, accessToken, err := s.auth.Login(ctx, login.GetLogin(), login.GetPassword())
 	if err != nil {
-		// TODO: ...
+		if errors.Is(err, auth.ErrInvalidUserCredentials) {
+			return nil, status.Error(codes.Unauthenticated, auth.ErrInvalidUserCredentials.Error())
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &authv1.LoginResponse{
@@ -54,7 +58,9 @@ func (s *serverAPI) Register(ctx context.Context, register *authv1.RegisterReque
 	}
 	uid, err := s.auth.Register(ctx, register.GetLogin(), register.GetPassword())
 	if err != nil {
-		// TODO: ...
+		if errors.Is(err, auth.ErrUserAlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, auth.ErrUserAlreadyExists.Error())
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &authv1.RegisterResponse{UserId: uid}, nil
@@ -67,7 +73,9 @@ func (s *serverAPI) Refresh(ctx context.Context, token *authv1.TokenRequest) (*a
 
 	refreshToken, accessToken, err := s.auth.Refresh(ctx, token.GetToken())
 	if err != nil {
-		// TODO: ...
+		if errors.Is(err, auth.ErrInvalidUserCredentials) {
+			return nil, status.Error(codes.Unauthenticated, auth.ErrInvalidUserCredentials.Error())
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -84,7 +92,9 @@ func (s *serverAPI) Validate(ctx context.Context, token *authv1.TokenRequest) (*
 
 	_, err := s.auth.Validate(ctx, token.GetToken())
 	if err != nil {
-		// TODO: ...
+		if errors.Is(err, auth.ErrInvalidUserCredentials) {
+			return nil, status.Error(codes.Unauthenticated, auth.ErrInvalidUserCredentials.Error())
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &emptypb.Empty{}, nil
