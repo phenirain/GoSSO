@@ -32,7 +32,6 @@ func New(tokenTTL time.Duration, log *slog.Logger, repo UsrRepo, secret []byte) 
 var (
 	ErrInvalidUserCredentials = errors.New("invalid user credentials")
 	ErrUserAlreadyExists      = errors.New("user already exists")
-	// TODO: дописать ErrUserNotFound
 )
 
 //go:generate mockery --name=UsrRepo
