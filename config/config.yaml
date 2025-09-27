@@ -1,6 +1,6 @@
-env: "local" # dev, prod
+env: "dev"
 connection_string: "postgres://postgres:6699@database:5432/UsersSSOdb?sslmode=disable"
 secret: "pineapples"
-grpc:
-  port: 8080
+http:
+  port: 8081
   timeout: 15m

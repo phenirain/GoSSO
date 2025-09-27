@@ -3,43 +3,58 @@ package jwt
 import (
 	"errors"
 	"fmt"
-	"github.com/EtoNeAnanasbI95/auth-grpc-demo/internal/domain/models"
 	"github.com/golang-jwt/jwt/v5"
+	jwtErrors "github.com/phenirain/sso/internal/errors/jwt"
 	"time"
 )
 
-var (
-	ErrInvalidToken = errors.New("invalid token")
-)
-
-func NewToken(user *models.User, duration time.Duration, secret []byte) (string, error) {
-	claims := jwt.MapClaims{
-		"sub":  user.Id,
-		"name": user.Name,
-	}
-	claims["exp"] = time.Now().Add(duration).Unix()
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(secret)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
+type JwtLib struct {
+	duration time.Duration
+	secret []byte
 }
 
-func ParseToken(tokenString string, secret []byte) (int64, error) {
+func NewJwtLib(duration time.Duration, secret []byte) *JwtLib {
+	return &JwtLib{
+		duration: duration,
+		secret: secret,
+	}
+}
+
+//TODO: класть роль
+func (j *JwtLib) NewToken(userId int64) (accessToken string, refreshToken string, error error) {
+	claims := jwt.MapClaims{
+		"sub":  userId,
+	}
+	claims["exp"] = time.Now().Add(j.duration).Unix()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	accessToken, err := token.SignedString(j.secret)
+	if err != nil {
+		return "", "", err
+	}
+
+	claims["exp"] = time.Now().Add(time.Hour*24*30).Unix()
+	token = jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	refreshToken, err = token.SignedString(j.secret)
+	if err != nil {
+		return "", "", err
+	}
+	return
+}
+
+//TODO доставать роль
+func (j *JwtLib) ParseToken(tokenString string) (int64, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return secret, nil
+		return j.secret, nil
 	})
 	if err != nil {
 		return -1, fmt.Errorf("token parse error: %s", err.Error())
 	}
 	if !token.Valid {
-		return -1, ErrInvalidToken
+		return -1, jwtErrors.ErrInvalidToken
 	}
 	uid, ok := token.Claims.(jwt.MapClaims)["sub"]
 	if !ok {
