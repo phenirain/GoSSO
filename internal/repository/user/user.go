@@ -18,14 +18,15 @@ func New(db *sqlx.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (u *UserRepository) GetUserByLogin(ctx context.Context, login string) (user *domain.User, err error) {
-	const op = "User.GetUser"
+func (u *UserRepository) GetUserByLogin(ctx context.Context, login string) (*domain.User, error) {
+	const op = "User.GetUserByLogin"
 	log := slog.With(
 		slog.String("op", op),
 	)
 	log.Info("attempting to get user")
 
-	err = u.db.Get(&user, "SELECT * FROM users WHERE login = $1", login)
+	var user domain.User
+	err := u.db.Get(&user, "SELECT * FROM users WHERE login = $1", login)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -33,7 +34,7 @@ func (u *UserRepository) GetUserByLogin(ctx context.Context, login string) (user
 		log.Error("something went wrong", "err", err)
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	return
+	return &user, nil
 }
 
 func (u *UserRepository) GetUserWithId(ctx context.Context, uid int64) (*domain.User, error) {
@@ -63,7 +64,7 @@ func (u *UserRepository) CreateUser(ctx context.Context, user *domain.User) (int
 		RETURNING id
 	`
 
-	rows, err := u.db.NamedQueryContext(ctx, query, u)
+	rows, err := u.db.NamedQueryContext(ctx, query, user)
 	if err != nil {
 		return 0, fmt.Errorf("insert user: %w", err)
 	}

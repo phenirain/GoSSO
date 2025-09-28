@@ -1,0 +1,127 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "SSO service API.",
+        "title": "SSO API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/auth/logIn": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login user",
+                "parameters": [
+                    {
+                        "description": "Credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh access token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signUp": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register user",
+                "parameters": [
+                    {
+                        "description": "Credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_phenirain_sso_internal_dto_auth.AuthRequest": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "description": "Логин пользователя",
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "password": {
+                    "description": "Пароль пользователя",
+                    "type": "string",
+                    "example": "P@ssw0rd!"
+                }
+            }
+        },
+        "github_com_phenirain_sso_internal_dto_auth.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "Access Token для доступа к защищенным ресурсам",
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "description": "Refresh Token для обновления пары токенов",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

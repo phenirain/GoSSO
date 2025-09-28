@@ -15,16 +15,18 @@ type Jwt interface {
 
 func JwtValidation(jwt Jwt) echo.MiddlewareFunc {
 	skip := map[string]struct{}{
-		"/auth/logIn":  {},
-		"/auth/signUp": {},
+		"/auth/logIn":   {},
+		"/auth/signUp":  {},
 		"/auth/refresh": {},
-		"/health":   {},
+		"/health":       {},
+		"/swagger/*":    {},
 	}
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 
-			if _, ok := skip[c.Path()]; ok {
+			p := c.Path()
+			if _, ok := skip[p]; ok {
 				return next(c)
 			}
 

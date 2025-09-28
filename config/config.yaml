@@ -1,6 +1,12 @@
 env: "dev"
-connection_string: "postgres://postgres:6699@database:5432/UsersSSOdb?sslmode=disable"
-secret: "pineapples"
+connection_string: "postgres://phenirain:phenirain13%29@localhost5432/FourthCourseFirstProject?sslmode=disable"
+secret: "fourthcoursefirthproject"
+allowed_origins:
+    - https://app.example.com
+    - https://admin.example.com
+    - https://phenirain.ru
+    - http://phenirain.ru
+    - http://localhost:3000
 http:
   port: 8081
   timeout: 15m

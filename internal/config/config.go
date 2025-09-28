@@ -8,21 +8,21 @@ import (
 )
 
 type Config struct {
-	Env              string     `yaml:"env" env-default:"local" json:"env"`
-	ConnectionString string     `yaml:"connection_string" json:"connection-string" env-required:"true"`
+	Env              string     `mapstructure:"env"`
+	ConnectionString string     `mapstructure:"connection_string"`
 	AllowedOrigins   []string   `mapstructure:"allowed_origins"`
-	Secret           []byte     `yaml:"secret" json:"secret" env-required:"true"`
-	HTTP             HTTPConfig `yaml:"http" json:"http" env-required:"true"`
+	Secret           string     `mapstructure:"secret"`
+	HTTP             HTTPConfig `mapstructure:"http"`
 }
 
 type HTTPConfig struct {
-	Port    int           `yaml:"port" json:"port" env-default:"8080"`
-	Timeout time.Duration `yaml:"timeout" json:"timeout" env-default:"5m"`
+	Port    int           `mapstructure:"port"`
+	Timeout time.Duration `mapstructure:"timeout"`
 }
 
 func LoadConfig() (*Config, error) {
 
-	viper.SetConfigFile("config/config.yaml")
+	viper.SetConfigFile("../../config/config.yaml")
 
 	var cfg Config
 	err := viper.ReadInConfig()
@@ -32,7 +32,7 @@ func LoadConfig() (*Config, error) {
 
 	err = viper.Unmarshal(&cfg)
 	if err != nil {
-		return nil, fmt.Errorf("error while unmarshaling config file")
+		return nil, fmt.Errorf("error while unmarshaling config file: %w", err)
 	}
 	return &cfg, nil
 }

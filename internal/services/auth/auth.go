@@ -44,7 +44,7 @@ func (a *Auth) Auth(ctx context.Context, request auth.AuthRequest, isNew bool) (
 		slog.Error("failed to get user", "err", err)
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	userId := user.Id
+	var userId int64 
 	// если создание
 	if isNew {
 		// если пользователь найден - уже существует
@@ -69,6 +69,7 @@ func (a *Auth) Auth(ctx context.Context, request auth.AuthRequest, isNew bool) (
 		if !valid {
 			return nil, authErrors.ErrInvalidUserCredentials
 		}
+		userId = user.Id
 	}
 
 	return a.getAuthResponse(userId)

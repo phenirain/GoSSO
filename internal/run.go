@@ -45,7 +45,7 @@ func Run(cfg *config.Config) error {
 
 func startServers(ctx context.Context, g *errgroup.Group, db *sqlx.DB, cfg *config.Config) {
 	usersRepository := user.New(db)
-	jwtLib := jwt.NewJwtLib(time.Minute*60, cfg.Secret)
+	jwtLib := jwt.NewJwtLib(time.Minute*60, []byte(cfg.Secret))
 	authService := auth.New(usersRepository, jwtLib)
 
 	httpServer := application.SetupHTTPServer(cfg, authService, jwtLib)

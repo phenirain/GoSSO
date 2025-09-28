@@ -1,0 +1,83 @@
+basePath: /
+definitions:
+  github_com_phenirain_sso_internal_dto_auth.AuthRequest:
+    properties:
+      login:
+        description: Логин пользователя
+        example: user@example.com
+        type: string
+      password:
+        description: Пароль пользователя
+        example: P@ssw0rd!
+        type: string
+    type: object
+  github_com_phenirain_sso_internal_dto_auth.AuthResponse:
+    properties:
+      access_token:
+        description: Access Token для доступа к защищенным ресурсам
+        type: string
+      refresh_token:
+        description: Refresh Token для обновления пары токенов
+        type: string
+    type: object
+info:
+  contact: {}
+  description: SSO service API.
+  title: SSO API
+  version: "1.0"
+paths:
+  /auth/logIn:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthResponse'
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/signUp:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_phenirain_sso_internal_dto_auth.AuthResponse'
+      summary: Register user
+      tags:
+      - auth
+swagger: "2.0"

@@ -7,10 +7,10 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/phenirain/sso/internal/application/auth"
 	"github.com/phenirain/sso/internal/config"
+	_ "github.com/phenirain/sso/docs"
 	"github.com/phenirain/sso/pkg/echomiddleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
-
-
 
 func SetupHTTPServer(cfg *config.Config, authService auth.AuthService, jwt echomiddleware.Jwt) *echo.Echo {
 	e := echo.New()
@@ -23,6 +23,8 @@ func SetupHTTPServer(cfg *config.Config, authService auth.AuthService, jwt echom
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
 
+	// Swagger UI endpoint
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	e.GET("/health", func(c echo.Context) error {
 		return c.String(http.StatusOK, "OK")
@@ -43,4 +45,3 @@ func registerAuthRoutes(e *echo.Echo, authService auth.AuthService) {
 	auth.POST("/signUp", authHandler.SignUp)
 	auth.POST("/refresh", authHandler.Refresh)
 }
-

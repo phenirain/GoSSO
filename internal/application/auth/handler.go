@@ -24,16 +24,36 @@ func NewHandler(auth AuthService) *Handler {
 	}
 }
 
-// Login handles user login
+// LogIn godoc
+// @Summary Login user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body authModels.AuthRequest true "Credentials"
+// @Success 200 {object} authModels.AuthResponse
+// @Router /auth/logIn [post]
 func (h *Handler) LogIn(c echo.Context) error {
 	return h.auth(c, false)
 }
 
+// SignUp godoc
+// @Summary Register user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body authModels.AuthRequest true "Credentials"
+// @Success 200 {object} authModels.AuthResponse
+// @Router /auth/signUp [post]
 func (h *Handler) SignUp(c echo.Context) error {
 	return h.auth(c, true)
 }
 
-// Refresh handles token refresh
+// Refresh godoc
+// @Summary Refresh access token
+// @Tags auth
+// @Produce json
+// @Success 200 {object} authModels.AuthResponse
+// @Router /auth/refresh [post]
 func (h *Handler) Refresh(c echo.Context) error {
 	ctx := c.Request().Context()
 
