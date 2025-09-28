@@ -143,8 +143,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "SSO service API.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {
