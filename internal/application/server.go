@@ -27,6 +27,9 @@ func SetupHTTPServer(cfg *config.Config, authService auth.AuthService, jwt echom
 	e.GET("/health", func(c echo.Context) error {
 		return c.String(http.StatusOK, "OK")
 	})
+	e.GET("/v", func(c echo.Context) error {
+		return c.String(http.StatusOK, "JWT IS VALID")
+	})
 
 	registerAuthRoutes(e, authService)
 
