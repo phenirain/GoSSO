@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/phenirain/sso/internal/domain"
-	"github.com/jmoiron/sqlx"
 	"log/slog"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/phenirain/sso/internal/domain"
+	"github.com/phenirain/sso/pkg/database"
 )
 
 type UserRepository struct {
@@ -57,25 +59,35 @@ func (u *UserRepository) GetUserWithId(ctx context.Context, uid int64) (*domain.
 	return &user, nil
 }
 
-func (u *UserRepository) CreateUser(ctx context.Context, user *domain.User) (int64, error){
+func (u *UserRepository) CreateUser(ctx context.Context, user *domain.User) (int64, error) {
 	const query = `
 		INSERT INTO users (role_id, login, password, creation_datetime, update_datetime, is_archived)
 		VALUES (:role_id, :login, :password, :creation_datetime, :update_datetime, :is_archived)
 		RETURNING id
 	`
 
-	rows, err := u.db.NamedQueryContext(ctx, query, user)
+	result, err := database.WithUserTransaction(u.db, ctx, func(tx *sqlx.Tx) (int64, error) {
+		rows, err := tx.NamedQuery(query, user)
+		if err != nil {
+			return 0, err
+		}
+		defer rows.Close()
+
+		var id int64
+		if rows.Next() {
+			if err := rows.Scan(&id); err != nil {
+				return 0, err
+			}
+		} else {
+			return 0, fmt.Errorf("no id returned")
+		}
+
+		return id, nil
+	})
 	if err != nil {
 		return 0, fmt.Errorf("insert user: %w", err)
 	}
-	defer rows.Close()
 
-	var id int64
-	if rows.Next() {
-		if err := rows.Scan(&id); err != nil {
-			return 0, fmt.Errorf("scan id: %w", err)
-		}
-	}
-
-	return id, nil
+	return result, nil
 }
+
